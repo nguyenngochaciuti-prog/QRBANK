@@ -102,21 +102,31 @@
 <div class="container">
   <h1>Thanh toán qua VietQR</h1>
 
-<p class="note">
-  Tài khoản nhận cố định:<br/>
-  STK: <b>444555666001</b> – Techcombank <br/>
-  CTK: <b>NGÔ MAI NGUYÊN DƯƠNG</b><br/>
-  Hãy mở trang này bằng điện thoại để quét QR hoặc bấm logo ngân hàng.
-</p>
-
+  <p class="note">
+    Tài khoản nhận cố định:<br/>
+    STK: <b>444555666001</b> – Techcombank <br/>
+    CTK: <b>NGÔ MAI NGUYÊN DƯƠNG</b><br/>
+    Hãy mở trang này bằng điện thoại để quét QR hoặc bấm logo ngân hàng.
+  </p>
 
   <div class="qr-section">
     <h3>Mã VietQR</h3>
     <img id="qrImage" class="qr-img" alt="Đang tạo mã VietQR..." />
-<p class="note">
-  Quý khách vui lòng kiểm tra kỹ thông tin trước khi xác nhận chuyển tiền. Xin chân thành cảm ơn!
-</p>
 
+    <div style="text-align:center; font-size:12px; margin-top:4px; color:#333;">
+      Techcombank • STK
+      <span id="displayAcc" style="font-weight:600;">444555666001</span>
+      <button
+        onclick="copyAccount()"
+        style="margin-left:6px; padding:2px 6px; font-size:11px; border-radius:999px; border:1px solid #ddd; background:#f3f4f6; cursor:pointer;"
+      >
+        Sao chép
+      </button>
+    </div>
+
+    <p class="note" style="text-align:center; margin-top:6px;">
+      Quý khách vui lòng kiểm tra kỹ thông tin trước khi xác nhận chuyển tiền. Xin chân thành cảm ơn!
+    </p>
   </div>
 
   <div class="banks-section">
@@ -142,8 +152,8 @@
   const FIXED_AMOUNT       = ""; // "" = để khách nhập tiền trong app
 
   // ===== 2. CẤU HÌNH API VIETQR (QR) =====
-  const VIETQR_CLIENT_ID = "d2ec01e1-3340-406e-8382-71b70f951b66";     // Client Id VietQR (nếu có)
-  const VIETQR_API_KEY  = "2e454c88-2638-48e3-81b0-1a86842b71dd ";      // API Key VietQR (nếu có)
+  const VIETQR_CLIENT_ID = "d2ec01e1-3340-406e-8382-71b70f951b66";
+  const VIETQR_API_KEY  = "2e454c88-2638-48e3-81b0-1a86842b71dd"; // bỏ dấu cách thừa ở cuối
   const STATIC_QR_IMAGE_URL = "";  // URL ảnh QR tĩnh nếu không dùng API
 
   // ===== 3. URL API =====
@@ -212,8 +222,7 @@
   }
 
   function buildDeeplink(appCode) {
-    // Theo doc VietQR deeplink: ba, am, tn, bn, app [web:7]
-    const ba = encodeURIComponent(FIXED_ACCOUNT_NO + "@tcb"); // Techcombank code: tcb hoặc TCB tuỳ Napas, bạn có thể đổi nếu cần
+    const ba = encodeURIComponent(FIXED_ACCOUNT_NO + "@tcb");
     const am = FIXED_AMOUNT ? encodeURIComponent(FIXED_AMOUNT) : "";
     const tn = encodeURIComponent(FIXED_ADD_INFO);
     const bn = encodeURIComponent(FIXED_ACCOUNT_NAME);
@@ -302,6 +311,33 @@
   document.getElementById("bankSearch").addEventListener("input", (e) => {
     renderBanks(e.target.value);
   });
+
+  // ===== 6. HÀM COPY SỐ TÀI KHOẢN =====
+  function copyAccount() {
+    const acc = FIXED_ACCOUNT_NO;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(acc)
+        .then(() => {
+          alert("Đã sao chép số tài khoản: " + acc);
+        })
+        .catch(() => {
+          fallbackCopyText(acc);
+        });
+    } else {
+      fallbackCopyText(acc);
+    }
+  }
+
+  function fallbackCopyText(text) {
+    const tempInput = document.createElement("input");
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+    alert("Đã sao chép số tài khoản: " + text);
+  }
 
   autoGenerateQR();
   loadBanks();
